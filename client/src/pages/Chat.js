@@ -11,7 +11,7 @@ function Chat() {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState('');
     const [user, setUser] = useState('');
-    const [to, setTo] = useState('');
+    const [to, setTo] = useState('public');
     const [users, setUsers] = useState([]);
     const [search, setSearch] = useState('');
     const navigate = useNavigate();
@@ -30,13 +30,19 @@ function Chat() {
             setMessages(prev => [decrypted, ...prev]);
         });
 
+        socket.on("register", (user) =>
+            {
+                console.log("new user registering")
+                setUsers(users => [...users, user])
+            })
+
 
         axios.get('http://localhost:4000/messages').then(res => {
             const decryptedMessages = res.data.map(m => ({
                 ...m,
                 encryptedMessage: decrypt(m.encryptedMessage),
             }));
-            setMessages(decryptedMessages.filter(m => !m.to || m.to === user || m.user === user).reverse());
+            setMessages(decryptedMessages.reverse());
         });
 
         axios.get('http://localhost:4000/users').then(res => {
@@ -59,7 +65,7 @@ function Chat() {
         if (!message.trim()) return;
         const encryptedMessage = encrypt(message);
         setMessage('');
-        console.log('Sending message:', { user, to, encryptedMessage });
+        console.log('Sending message:', user, to, encryptedMessage );
         await axios.post('http://localhost:4000/messages', { user, to, encryptedMessage });
     };
 
@@ -80,8 +86,8 @@ function Chat() {
                 />
                 <ul className="flex-1 overflow-y-auto">
                     <li
-                        onClick={() => setTo('')}
-                        className={`cursor-pointer p-2 rounded-md ${to === '' ? 'bg-blue-200' : 'hover:bg-gray-200'}`}
+                        onClick={() => setTo('public')}
+                        className={`cursor-pointer p-2 rounded-md ${to === 'public' ? 'bg-blue-200' : 'hover:bg-gray-200'}`}
                     >
                         🌍 Chat public
                     </li>
@@ -100,20 +106,21 @@ function Chat() {
             {/* Chat */}
             <div className="flex-1 p-4 flex flex-col h-full">
                 <h2 className="text-2xl font-semibold text-center mb-4">
-                    🔐 SecureTalk {to && `(Privé avec ${to})`}
+                    🔐 SecureTalk {to != "public" && `(Privé avec ${to})`}
                 </h2>
                 <div className="flex-1 overflow-y-auto space-y-2 mb-4 flex flex-col-reverse">
                     <div ref={messagesEndRef} />
 
                     {messages
                         .filter(m => {
-                            // Public messages (no `to`)
-                            if (!m.to) return !to;
-
                             // Private messages: between current user and selected user
                             return (
+                                // CASE PUBLIC
+                                (to === 'public' && m.to === "public") ||
+                                // CASE PRIVATE
+                                ( to !== 'public' &&
                                 (m.user === user && m.to === to) ||
-                                (m.user === to && m.to === user)
+                                (m.user === to && m.to === user))
                             );
                         })
                         .map((m, i) => (

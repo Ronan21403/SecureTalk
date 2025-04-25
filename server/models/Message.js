@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema({
     user: { type: String, required: true },
-    to: { type: String }, // optional: null means public
+    to: { type: String, required : true}, // optional: null means public
     encryptedMessage: { type: String, required: true },
     createdAt: { type: Date, default: Date.now }
 });

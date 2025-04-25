@@ -5,7 +5,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const User = require('./models/User');
-
+const Message = require('./models/Message')
 const app = express();
 app.use(cors({
     origin: '*', // Allows all origins (restrict this in production)
@@ -15,15 +15,6 @@ app.use(cors({
 
 app.use(express.json());
 
-// Create a simple Message schema if not already defined
-const messageSchema = new mongoose.Schema({
-    user: { type: String, required: true },
-    encryptedMessage: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now }
-});
-
-// Create Message model if not already imported
-const Message = mongoose.model('Message', messageSchema);
 
 const server = http.createServer(app);
 // Initialize socket.io with CORS settings
@@ -34,33 +25,34 @@ const io = socketIo(server, {
     }
 });
 
-// Set up the Redis clients with proper connection
-const redisClient = redis.createClient();
-const redisPublisher = redis.createClient();
+// // Set up the Redis clients with proper connection
+// const redisClient = redis.createClient();
+// const redisPublisher = redis.createClient();
 
-// Connect Redis clients
-async function connectRedis() {
-    try {
-        await redisClient.connect();
-        await redisPublisher.connect();
-        console.log('Redis clients connected');
+// // Connect Redis clients
+// async function connectRedis() {
+//     try {
+//         await redisClient.connect();
+//         await redisPublisher.connect();
+//         console.log('Redis clients connected');
 
-        // Subscribe to the messages channel after connecting
-        await redisClient.subscribe('messages', (message) => {
-            // Send the new message to all connected clients via Socket.io
-            io.emit('new_message', JSON.parse(message));
-        });
-    } catch (err) {
-        console.error('Redis connection error:', err);
-    }
-}
+//         // Subscribe to the messages channel after connecting
+//         await redisClient.subscribe('messages', (message) => {
+//             // Send the new message to all connected clients via Socket.io
+//             io.emit('new_message', JSON.parse(message));
+//         });
 
-// Start Redis connection
-connectRedis();
+//     } catch (err) {
+//         console.error('Redis connection error:', err);
+//     }
+// }
 
-// Handle Redis connection errors
-redisClient.on('error', (err) => console.error('Redis Client Error:', err));
-redisPublisher.on('error', (err) => console.error('Redis Publisher Error:', err));
+// // Start Redis connection
+// connectRedis();
+
+// // Handle Redis connection errors
+// redisClient.on('error', (err) => console.error('Redis Client Error:', err));
+// redisPublisher.on('error', (err) => console.error('Redis Publisher Error:', err));
 
 // Connect to MongoDB
 mongoose.connect('mongodb://localhost:27017/securetalk').catch(err =>
@@ -99,8 +91,8 @@ app.post('/messages', async (req, res) => {
 
         // Only publish to Redis, which will then trigger the Socket.IO emission
         // through the Redis subscription callback
-        await redisPublisher.publish('messages', JSON.stringify(message));
-
+        // await redisPublisher.publish('messages', JSON.stringify(message));
+        await io.emit('new_message', message);
         res.status(201).send('Message saved');
     } catch (err) {
         console.error('Error saving message:', err);
@@ -120,6 +112,7 @@ app.post('/register', async (req, res) => {
     }
     const user = new User({ username, password });
     await user.save();
+    // redisPublisher.publish("register", JSON.parse(user))
     res.status(201).send('User registered successfully');
 
 })
