@@ -4,6 +4,7 @@ const socketIo = require('socket.io');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const User = require('./models/User');
 
 const app = express();
 app.use(cors({
@@ -85,13 +86,13 @@ app.get('/messages', async (req, res) => {
 
 // POST endpoint to save new messages
 app.post('/messages', async (req, res) => {
-    const { user, encryptedMessage } = req.body;
-
+    const { user, to, encryptedMessage } = req.body;
+    console.log('Received message:', { user, to, encryptedMessage });
     if (!user || !encryptedMessage) {
         return res.status(400).send('Invalid data');
     }
 
-    const message = new Message({ user, encryptedMessage });
+    const message = new Message({ user, to, encryptedMessage });
 
     try {
         await message.save();
@@ -106,6 +107,45 @@ app.post('/messages', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+app.post('/register', async (req, res) => {
+    const { username, password } = req.body;
+    console.log('Register attempt with username:', username, password);
+    if (!username || !password) {
+        return res.status(400).send('Invalid data');
+    }
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+        return res.status(409).send('Username already exists');
+    }
+    const user = new User({ username, password });
+    await user.save();
+    res.status(201).send('User registered successfully');
+
+})
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    console.log('Login attempt with username:', username, password);
+    if (!username || !password) {
+        return res.status(400).send('Invalid data');
+    }
+    const user = await User.findOne({ username, password });
+    console.log(user);
+    if (!user) {
+        return res.status(401).send('Invalid username or password');
+    }
+    res.status(200).send('Login successful');
+});
+
+app.get('/users', async (req, res) => {
+    try {
+        const users = await User.find({}, 'username');
+        res.json(users.map(u => u.username));
+    } catch (err) {
+        res.status(500).send('Error fetching users');
+    }
+});
+
 
 // Set up Socket.IO connection event
 io.on('connection', (socket) => {
