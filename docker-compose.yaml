@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   mongodb:
     image: mongo:latest
@@ -7,22 +8,35 @@ services:
       - "27017:27017"
     volumes:
       - securetalk_mongo-data:/data/db
-
-  # Service Redis
-  redis:
-    image: redis:latest
-    container_name: redis
-    ports:
-      - "6379:6379"  # Redis par défaut écoute sur le port 6379
     networks:
       - securetalk_network
 
-# Définir les volumes pour MongoDB
+  backend:
+    build: ./server
+    container_name: backend
+    ports:
+      - "4000:4000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/securetalk
+    depends_on:
+      - mongodb
+    networks:
+      - securetalk_network
+
+  frontend:
+    build: ./client
+    container_name: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - securetalk_network
+
 volumes:
   securetalk_mongo-data:
     driver: local
 
-# Définir les réseaux
 networks:
   securetalk_network:
     driver: bridge

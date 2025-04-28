@@ -25,37 +25,8 @@ const io = socketIo(server, {
     }
 });
 
-// // Set up the Redis clients with proper connection
-// const redisClient = redis.createClient();
-// const redisPublisher = redis.createClient();
-
-// // Connect Redis clients
-// async function connectRedis() {
-//     try {
-//         await redisClient.connect();
-//         await redisPublisher.connect();
-//         console.log('Redis clients connected');
-
-//         // Subscribe to the messages channel after connecting
-//         await redisClient.subscribe('messages', (message) => {
-//             // Send the new message to all connected clients via Socket.io
-//             io.emit('new_message', JSON.parse(message));
-//         });
-
-//     } catch (err) {
-//         console.error('Redis connection error:', err);
-//     }
-// }
-
-// // Start Redis connection
-// connectRedis();
-
-// // Handle Redis connection errors
-// redisClient.on('error', (err) => console.error('Redis Client Error:', err));
-// redisPublisher.on('error', (err) => console.error('Redis Publisher Error:', err));
-
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/securetalk').catch(err =>
+mongoose.connect('mongodb://mongodb:27017/securetalk').catch(err =>
     console.error('MongoDB connection error:', err)
 );
 

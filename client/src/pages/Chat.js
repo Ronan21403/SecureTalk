@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import io from 'socket.io-client';
 import CryptoJS from 'crypto-js';
 import axios from 'axios';
@@ -30,11 +30,10 @@ function Chat() {
             setMessages(prev => [decrypted, ...prev]);
         });
 
-        socket.on("register", (user) =>
-            {
-                console.log("new user registering")
-                setUsers(users => [...users, user])
-            })
+        socket.on("register", (user) => {
+            console.log("new user registering")
+            setUsers(users => [...users, user])
+        })
 
 
         axios.get('http://localhost:4000/messages').then(res => {
@@ -65,7 +64,7 @@ function Chat() {
         if (!message.trim()) return;
         const encryptedMessage = encrypt(message);
         setMessage('');
-        console.log('Sending message:', user, to, encryptedMessage );
+        console.log('Sending message:', user, to, encryptedMessage);
         await axios.post('http://localhost:4000/messages', { user, to, encryptedMessage });
     };
 
@@ -118,9 +117,9 @@ function Chat() {
                                 // CASE PUBLIC
                                 (to === 'public' && m.to === "public") ||
                                 // CASE PRIVATE
-                                ( to !== 'public' &&
-                                (m.user === user && m.to === to) ||
-                                (m.user === to && m.to === user))
+                                (to !== 'public' &&
+                                    (m.user === user && m.to === to) ||
+                                    (m.user === to && m.to === user))
                             );
                         })
                         .map((m, i) => (
