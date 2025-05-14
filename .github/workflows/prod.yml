@@ -94,3 +94,7 @@ jobs:
           kubectl apply -f server/backend-service.yaml
           kubectl apply -f client/frontend-deployment.yaml
           kubectl apply -f client/frontend-service.yaml
+      - name: Force rollout to repull images
+        run: |
+          kubectl rollout restart deployment/backend
+          kubectl rollout restart deployment/frontend
