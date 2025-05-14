@@ -19,4 +19,4 @@ spec:
         - containerPort: 4000
         env:
         - name: MONGO_URI
-          value: mongodb://mongo:27017/securetalk
+          value: "mongodb+srv://ronanlegoff:k0c4dMNZpvUylbRp@securetalk.xxauryq.mongodb.net/securetalk?retryWrites=true&w=majority&appName=SecureTalk"

@@ -9,8 +9,6 @@ const Message = require('./models/Message')
 const dotenv = require('dotenv');
 
 // Dynamically load the appropriate .env file
-const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
-console.log(`Loading environment variables from ${envFile}`);
 dotenv.config({ path: envFile });
 const app = express();
 
