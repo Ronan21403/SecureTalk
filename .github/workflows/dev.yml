@@ -7,7 +7,7 @@ on:
     branches: [dev]
 
 jobs:
-  test:
+  frontend-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -27,7 +27,15 @@ jobs:
         run: |
           cd client
           npm test -- --watchAll=false
-
+  backend-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
       - name: Install dependencies (backend)
         run: |
           cd server
