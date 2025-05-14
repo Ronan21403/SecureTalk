@@ -6,7 +6,14 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const User = require('./models/User');
 const Message = require('./models/Message')
+const dotenv = require('dotenv');
+
+// Dynamically load the appropriate .env file
+const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
+console.log(`Loading environment variables from ${envFile}`);
+dotenv.config({ path: envFile });
 const app = express();
+
 app.use(cors({
     origin: '*', // Allows all origins (restrict this in production)
     methods: ['GET', 'POST'],
@@ -26,7 +33,10 @@ const io = socketIo(server, {
 });
 
 // Connect to MongoDB
-mongoose.connect('mongodb://mongodb:27017/securetalk').catch(err =>
+console.log('MONGO_URI:', process.env.MONGO_URI);
+console.log('REACT_APP_BACKEND_URL:', process.env.REACT_APP_BACKEND_URL);
+const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/securetalk';
+mongoose.connect(mongoURI).catch(err =>
     console.error('MongoDB connection error:', err)
 );
 
@@ -35,6 +45,31 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
     console.log('MongoDB connected!');
 });
+
+
+// Health check endpoint
+app.get('/health', async (req, res) => {
+    try {
+        // Check MongoDB connection state
+        const mongoState = mongoose.connection.readyState;
+        const mongoStatus = {
+            0: 'disconnected',
+            1: 'connected',
+            2: 'connecting',
+            3: 'disconnecting',
+        };
+
+        if (mongoState === 1) {
+            return res.status(200).json({ status: 'healthy', mongo: mongoStatus[mongoState] });
+        } else {
+            return res.status(500).json({ status: 'unhealthy', mongo: mongoStatus[mongoState] });
+        }
+    } catch (error) {
+        console.error('Health check error:', error);
+        return res.status(500).json({ status: 'unhealthy', error: error.message });
+    }
+});
+
 
 // GET endpoint to retrieve existing messages
 app.get('/messages', async (req, res) => {
@@ -119,7 +154,7 @@ io.on('connection', (socket) => {
     });
 });
 
-// Start the server
-server.listen(4000, () => {
+
+server.listen(4000, '0.0.0.0', () => {
     console.log('Server running on port 4000');
 });

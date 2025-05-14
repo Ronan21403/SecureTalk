@@ -4,7 +4,10 @@ import io from 'socket.io-client';
 import CryptoJS from 'crypto-js';
 import axios from 'axios';
 
-const socket = io('http://localhost:4000');
+
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
+console.log('REACT_APP_BACKEND_URL:', backendUrl);
+const socket = io(`${backendUrl}`);
 const SECRET_KEY = 'securetalk123';
 
 function Chat() {
@@ -36,7 +39,7 @@ function Chat() {
         })
 
 
-        axios.get('http://localhost:4000/messages').then(res => {
+        axios.get(`${backendUrl}/messages`).then(res => {
             const decryptedMessages = res.data.map(m => ({
                 ...m,
                 encryptedMessage: decrypt(m.encryptedMessage),
@@ -44,7 +47,7 @@ function Chat() {
             setMessages(decryptedMessages.reverse());
         });
 
-        axios.get('http://localhost:4000/users').then(res => {
+        axios.get(`${backendUrl}/users`).then(res => {
             setUsers(res.data.filter(u => u !== storedUser));
         });
 
@@ -65,7 +68,7 @@ function Chat() {
         const encryptedMessage = encrypt(message);
         setMessage('');
         console.log('Sending message:', user, to, encryptedMessage);
-        await axios.post('http://localhost:4000/messages', { user, to, encryptedMessage });
+        await axios.post(`${backendUrl}/messages`, { user, to, encryptedMessage });
     };
 
     const filteredUsers = users.filter(u => u.toLowerCase().includes(search.toLowerCase()));

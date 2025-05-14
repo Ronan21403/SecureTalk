@@ -2,6 +2,9 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router';
 
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
+console.log('REACT_APP_BACKEND_URL:', backendUrl);
+
 function Register() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -16,7 +19,7 @@ function Register() {
         }
 
         try {
-            const response = await axios.post('http://localhost:4000/register', { username, password });
+            const response = await axios.post(`${backendUrl}/register`, { username, password });
             if (response.status === 201) {
                 // Rediriger vers la page de connexion après une inscription réussie
                 navigate('/login');

@@ -18,6 +18,7 @@ services:
       - "4000:4000"
     environment:
       - MONGO_URI=mongodb://mongo:27017/securetalk
+      - NODE_ENV=production
     depends_on:
       - mongodb
     networks:
@@ -28,6 +29,9 @@ services:
     container_name: frontend
     ports:
       - "3000:80"
+    environment:
+      - REACT_APP_BACKEND_URL=http://backend:4000
+      - NODE_ENV=production
     depends_on:
       - backend
     networks:

@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
 
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
+console.log('REACT_APP_BACKEND_URL:', backendUrl);
+
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -12,7 +15,7 @@ function Login() {
     const handleLogin = async () => {
         // get the user in username in backend
         console.log('Login attempt with username:', username, password);
-        axios.post('http://localhost:4000/login', { username, password })
+        axios.post(`${backendUrl}/login`, { username, password })
             .then(response => {
                 if (response.status === 200) {
                     localStorage.setItem('securetalkUser', username);
