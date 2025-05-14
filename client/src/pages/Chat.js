@@ -91,7 +91,7 @@ function Chat() {
                         onClick={() => setTo('public')}
                         className={`cursor-pointer p-2 rounded-md ${to === 'public' ? 'bg-blue-200' : 'hover:bg-gray-200'}`}
                     >
-                        🌍 Chat public
+                        🌍 Public Chat
                     </li>
                     {filteredUsers.map((u, i) => (
                         <li

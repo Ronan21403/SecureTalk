@@ -9,6 +9,7 @@ const Message = require('./models/Message')
 const dotenv = require('dotenv');
 
 // Dynamically load the appropriate .env file
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
 dotenv.config({ path: envFile });
 const app = express();
 
@@ -32,7 +33,6 @@ const io = socketIo(server, {
 
 // Connect to MongoDB
 console.log('MONGO_URI:', process.env.MONGO_URI);
-console.log('REACT_APP_BACKEND_URL:', process.env.REACT_APP_BACKEND_URL);
 const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/securetalk';
 mongoose.connect(mongoURI).catch(err =>
     console.error('MongoDB connection error:', err)
