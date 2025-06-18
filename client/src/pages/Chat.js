@@ -77,7 +77,7 @@ function Chat() {
         <div className="flex h-screen bg-gray-100">
             {/* Sidebar */}
             <div className="w-64 bg-white border-r p-4 flex flex-col">
-                <h2 className="text-2xl font-semibold text-center mb-4">Welcome {user}</h2>
+                <h2 className="text-2xl font-semibold text-center mb-4">Bonjour {user}</h2>
                 <h3 className="text-lg font-bold mb-2">📇 Utilisateurs</h3>
                 <input
                     type="text"
