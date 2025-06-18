@@ -10,31 +10,6 @@ services:
       - securetalk_mongo-data:/data/db
     networks:
       - securetalk_network
-  # backend:
-  #   build: ./server
-  #   container_name: backend
-  #   ports:
-  #     - "4000:4000"
-  #   environment:
-  #     - MONGO_URI=mongodb://mongo:27017/securetalk
-  #     - NODE_ENV=production
-  #   depends_on:
-  #     - mongodb
-  #   networks:
-  #     - securetalk_network
-
-  # frontend:
-  #   build: ./client
-  #   container_name: frontend
-  #   ports:
-  #     - "3000:80"
-  #   environment:
-  #     - REACT_APP_BACKEND_URL=http://backend:4000
-  #     - NODE_ENV=production
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - securetalk_network
 
 volumes:
   securetalk_mongo-data:
